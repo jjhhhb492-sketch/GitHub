@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: discord-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: WELCOME_CHANNEL_ID
+        sync: false
+      - key: SERVER_NAME
+        sync: false
