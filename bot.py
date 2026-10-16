@@ -10,6 +10,8 @@ from aiohttp import web
 from discord import app_commands
 from dotenv import load_dotenv
 
+import dashboard
+
 load_dotenv()
 
 
@@ -32,6 +34,7 @@ TEMP_VOICE_ID = env_int("TEMP_VOICE_CHANNEL_ID")
 ANTI_LINK = os.getenv("ANTI_LINK") == "1"
 MESSAGE_CONTENT = os.getenv("MESSAGE_CONTENT") == "1"
 MONGO_URI = os.getenv("MONGO_URI")
+DASHBOARD_PASSWORD = os.getenv("DASHBOARD_PASSWORD")
 
 TEMP_PREFIX = "🔊 "
 LINK_RE = re.compile(r"(https?://|discord\.gg/|discord(app)?\.com/invite/)", re.I)
@@ -206,6 +209,20 @@ class Bot(discord.Client):
 
         app = web.Application()
         app.router.add_get("/", health)
+        if DASHBOARD_PASSWORD:
+            dashboard.register(
+                app, self,
+                {
+                    "autoreplies": autoreplies,
+                    "rules": rules,
+                    "TicketPanel": TicketPanel,
+                    "RoleButton": RoleButton,
+                    "send_log": send_log,
+                },
+                TOKEN, DASHBOARD_PASSWORD,
+            )
+        else:
+            print("ℹ️ لوحة التحكم مقفولة: زيد DASHBOARD_PASSWORD عشان تفتحها")
         runner = web.AppRunner(app)
         await runner.setup()
         port = int(os.getenv("PORT", "8080"))
